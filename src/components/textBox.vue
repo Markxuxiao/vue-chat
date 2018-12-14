@@ -1,16 +1,15 @@
 <script>
-import { actions } from '../store';
-
+import { mapActions } from 'vuex'
 export default {
-    vuex: {
-        actions: actions
-    },
     data () {
         return {
             content: ''
         };
     },
     methods: {
+        ...mapActions([
+            'sendMessage'
+        ]),
         onKeyup (e) {
             if (e.ctrlKey && e.keyCode === 13 && this.content.length) {
                 this.sendMessage(this.content);

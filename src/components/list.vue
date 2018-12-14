@@ -1,18 +1,21 @@
 <script>
-import { actions } from '../store';
+import { mapState, mapActions, mapGetters } from 'vuex'
 
 export default {
-    vuex: {
-        actions: actions,
-        getters: {
-            // 过滤后的会话列表
-            sessions: ({ sessions, filterKey }) => {
-                let result = sessions.filter(session => session.user.name.includes(filterKey));
-                return result;
-            },
-            // 当前会话index
-            currentId: ({ currentSessionId }) => currentSessionId
-        }
+
+    computed: {
+        ...mapGetters([
+            'getter_sessions'
+        ]),
+        ...mapState([
+            'currentSessionId'
+        ])
+    },
+    methods: {
+        ...mapActions([
+            'selectSession'
+        ]),
+        
     }
 };
 </script>
@@ -20,8 +23,12 @@ export default {
 <template>
 <div class="list">
     <ul>
-        <li v-for="item in sessions" :class="{ active: item.id === currentId }" @click="selectSession(item.id)">
-            <img class="avatar"  width="30" height="30" :alt="item.user.name" :src="item.user.img">
+        <li v-for="item in getter_sessions" :key="item.id"
+        :class="{ active: item.id === currentSessionId }"
+        @click="selectSession(item.id)">
+            <img class="avatar"  width="30" height="30"
+                :alt="item.user.name"
+                :src="item.user.img">
             <p class="name">{{item.user.name}}</p>
         </li>
     </ul>
@@ -30,6 +37,11 @@ export default {
 
 <style scoped lang="less">
 .list {
+    overflow-y: auto;
+    height: 495px;
+    ul{
+        list-style-type:none;
+    }
     li {
         padding: 12px 15px;
         border-bottom: 1px solid #292C33;

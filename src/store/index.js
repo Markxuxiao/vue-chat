@@ -4,6 +4,7 @@
  */
 import Vue from 'vue';
 import Vuex from 'vuex';
+import Api from '../api'
 
 Vue.use(Vuex);
 
@@ -13,15 +14,15 @@ const store = new Vuex.Store({
         // 当前用户
         user: {
             name: 'coffce',
-            img: 'dist/images/1.jpg'
+            img: './images/1.jpg'
         },
         // 会话列表
         sessions: [
             {
-                id: 1,
+                id: 'home',
                 user: {
                     name: '示例介绍',
-                    img: 'dist/images/2.png'
+                    img: './images/2.png'
                 },
                 messages: [
                     {
@@ -36,19 +37,40 @@ const store = new Vuex.Store({
             {
                 id: 2,
                 user: {
-                    name: 'webpack',
-                    img: 'dist/images/3.jpg'
+                    name: 'webpack13',
+                    img: './images/3.jpg'
+                },
+                messages: []
+            },
+            {
+                id: 3,
+                user: {
+                    name: 'webpack1',
+                    img: './images/3.jpg'
+                },
+                messages: []
+            },
+            {
+                id: 4,
+                user: {
+                    name: 'webpack2',
+                    img: './images/3.jpg'
                 },
                 messages: []
             }
         ],
         // 当前选中的会话
-        currentSessionId: 1,
+        currentSessionId: 'home',
         // 过滤出只包含这个key的会话
-        filterKey: ''
+        filterKey: '',
+        crrentConversation:null,
     },
     mutations: {
         INIT_DATA (state) {
+            let user = {
+                name: 'coffce',
+                img: './images/1.jpg'
+            }
             let data = localStorage.getItem('vue-chat-session');
             if (data) {
                 state.sessions = JSON.parse(data);
@@ -66,12 +88,37 @@ const store = new Vuex.Store({
         // 选择会话
         SELECT_SESSION (state, id) {
             state.currentSessionId = id;
-        } ,
+        },
         // 搜索
         SET_FILTER_KEY (state, value) {
             state.filterKey = value;
         }
-    }
+    },
+    getters: {
+        getter_sessions:({ sessions, filterKey }) => {
+            let result = sessions.filter(session => session.user.name.includes(filterKey));
+            return result;
+        },
+        getter_session: ({ sessions, currentSessionId }) => sessions.find(session => session.id === currentSessionId),
+    },
+    actions: {
+        init: ({ commit, state }) => {
+            Api.init().then((data) => {
+                commit('INIT_DATA')
+            })
+        },
+        sendMessage: ({ commit }, content) => {
+            Api.sendMessage('home', content).then((data) => {
+                commit('SEND_MESSAGE', data)
+            })
+        },
+        selectSession: ({ commit }, id) => {
+            commit('SELECT_SESSION', id)
+        },
+        search: ({ commit }, value) => {
+            commit('SET_FILTER_KEY', value)
+        }
+    },
 });
 
 store.watch(
@@ -86,9 +133,4 @@ store.watch(
 );
 
 export default store;
-export const actions = {
-    initData: ({ dispatch }) => dispatch('INIT_DATA'),
-    sendMessage: ({ dispatch }, content) => dispatch('SEND_MESSAGE', content),
-    selectSession: ({ dispatch }, id) => dispatch('SELECT_SESSION', id),
-    search: ({ dispatch }, value) => dispatch('SET_FILTER_KEY', value)
-};
+

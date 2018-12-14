@@ -1,10 +1,15 @@
 <script>
+import { mapState, mapGetters } from 'vuex'
+
 export default {
-    vuex: {
-        getters: {
-            user: ({ user }) => user,
-            session: ({ sessions, currentSessionId }) => sessions.find(session => session.id === currentSessionId)
-        }
+    computed: {
+        ...mapGetters([
+            'getter_session'
+        ]),
+        ...mapState([
+            'user',
+            'currentSessionId'
+        ]),
     },
     filters: {
         // 将日期过滤为 hour:minutes
@@ -17,24 +22,24 @@ export default {
     },
     directives: {
         // 发送消息后滚动到底部
-        'scroll-bottom' () {
-            this.vm.$nextTick(() => {
-                this.el.scrollTop = this.el.scrollHeight - this.el.clientHeight;
-            });
+        'scroll-bottom' (el) {
+            // this.$nextTick(() => {
+            //     el.scrollTop = el.scrollHeight - el.clientHeight;
+            // });
         }
     }
 };
 </script>
 
 <template>
-<div class="message" v-scroll-bottom="session.messages">
-    <ul v-if="session">
-        <li v-for="item in session.messages">
+<div class="message" v-scroll-bottom="getter_session.messages">
+    <ul v-if="getter_session">
+        <li v-for="item in getter_session.messages" :key="item.id">
             <p class="time">
                 <span>{{ item.date | time }}</span>
             </p>
             <div class="main" :class="{ self: item.self }">
-                <img class="avatar" width="30" height="30" :src="item.self ? user.img : session.user.img" />
+                <img class="avatar" width="30" height="30" :src="item.self ? user.img : getter_session.user.img" />
                 <div class="text">{{ item.content }}</div>
             </div>
         </li>
@@ -46,7 +51,9 @@ export default {
 .message {
     padding: 10px 15px;
     overflow-y: scroll;
-
+    ul{
+        list-style-type:none;
+    }
     li {
         margin-bottom: 15px;
     }
